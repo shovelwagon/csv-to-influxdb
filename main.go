@@ -19,40 +19,42 @@ import (
 var VERSION = "0.0.0-src"
 
 type config struct {
-	CSVFile         string `type:"arg" help:"<csv-file> must be a path a to valid CSV file with an initial header row"`
-	Server          string `help:"Server address"`
-	Database        string `help:"Database name"`
-	Username        string `help:"User name"`
-	Password        string `help:"Password"`
-	Measurement     string `help:"Measurement name"`
-	BatchSize       int    `help:"Batch insert size"`
-	TagColumns      string `help:"Comma-separated list of columns to use as tags instead of fields"`
-	TimestampColumn string `short:"ts" help:"Header name of the column to use as the timestamp"`
-	TimestampFormat string `short:"tf" help:"Timestamp format used to parse all timestamp records"`
-	NoAutoCreate    bool   `help:"Disable automatic creation of database"`
-	ForceFloat      bool   `help:"Force all numeric values to insert as float"`
-	ForceString     bool   `help:"Force all numeric values to insert as string"`
-	TreatNull	bool   `help:"Force treating "null" string values as such`
-	Attempts        int    `help:"Maximum number of attempts to send data to influxdb before failing"`
-	HttpTimeout	int    `help:"Timeout (in seconds) for http writes used by underlying influxdb client"`
+	CSVFile            string `type:"arg" help:"<csv-file> must be a path a to valid CSV file with an initial header row"`
+	Server             string `help:"Server address"`
+	Database           string `help:"Database name"`
+	Username           string `help:"User name"`
+	Password           string `help:"Password"`
+	Measurement        string `help:"Measurement name"`
+	BatchSize          int    `help:"Batch insert size"`
+	TagColumns         string `help:"Comma-separated list of columns to use as tags instead of fields"`
+	TimestampColumn    string `short:"ts" help:"Header name of the column to use as the timestamp"`
+	TimestampFormat    string `short:"tf" help:"Timestamp format used to parse all timestamp records"`
+	NoAutoCreate       bool   `help:"Disable automatic creation of database"`
+	ForceFloat         bool   `help:"Force all numeric values to insert as float"`
+	ForceString        bool   `help:"Force all numeric values to insert as string"`
+	TreatNull          bool   `help:"Force treating "null" string values as such`
+	Attempts           int    `help:"Maximum number of attempts to send data to influxdb before failing"`
+	HttpTimeout        int    `help:"Timeout (in seconds) for http writes used by underlying influxdb client"`
+	InsecureSkipVerify bool   `help:"Turns off ssl/tls verification"`
 }
 
 func main() {
 
 	//configuration defaults
 	conf := config{
-		Server:          "http://localhost:8086",
-		Database:        "test",
-		Username:        "",
-		Password:        "",
-		Measurement:     "data",
-		BatchSize:       5000,
-		ForceFloat:      false,
-		ForceString:     false,
-		TreatNull:       false,
-		TimestampColumn: "timestamp",
-		TimestampFormat: "2006-01-02 15:04:05",
-		HttpTimeout:	 10,
+		Server:             "http://localhost:8086",
+		Database:           "test",
+		Username:           "",
+		Password:           "",
+		Measurement:        "data",
+		BatchSize:          5000,
+		ForceFloat:         false,
+		ForceString:        false,
+		TreatNull:          false,
+		TimestampColumn:    "timestamp",
+		TimestampFormat:    "2006-01-02 15:04:05",
+		HttpTimeout:        10,
+		InsecureSkipVerify: false,
 	}
 
 	//parse config
@@ -88,7 +90,7 @@ func main() {
 	//if err != nil {
 	//	log.Fatalf("Invalid server address: %s", err)
 	//}
-	c, err := client.NewHTTPClient(client.HTTPConfig{Addr: conf.Server, Username: conf.Username, Password: conf.Password, Timeout: time.Duration(conf.HttpTimeout) * time.Second})
+	c, err := client.NewHTTPClient(client.HTTPConfig{Addr: conf.Server, Username: conf.Username, Password: conf.Password, Timeout: time.Duration(conf.HttpTimeout) * time.Second, InsecureSkipVerify: conf.InsecureSkipVerify})
 	defer c.Close()
 
 	dbsResp, err := c.Query(client.Query{Command: "SHOW DATABASES"})
